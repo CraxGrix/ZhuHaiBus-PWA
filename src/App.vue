@@ -41,6 +41,7 @@ export default {
     BasicInfoCard: () => import('@/components/Card/BasicInfoCard'),
   },
   data: () => ({
+    windowHeight: null,
     lineDetailsArray: [],
     childSearchTopping: false,
   }),
@@ -62,14 +63,23 @@ export default {
       this.$emit('font-loaded');
     },
   },
-
+  watch: {
+    windowHeight(newHeight) {
+     console.log(newHeight)
+    }
+  },
+  
   mounted() {
     WebFontLoader.load({
       google: {
         families: ['Roboto:100,300,400,500,700,900'],
       },
       active: this.setFontLoaded,
-    });
+    })
+    this.$nextTick(() => {
+      window.addEventListener('resize', () => {
+        this.windowHeight = window.innerHeight
+      })})
   },
 };
 </script>
