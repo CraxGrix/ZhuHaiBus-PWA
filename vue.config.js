@@ -1,6 +1,4 @@
 const WebpackPwaManifest = require('webpack-pwa-manifest')
-const VuetifyLoaderPlugin = require('vuetify-loader/lib/plugin')
-
 const path = require('path')
 
 function resolve(dir) {
@@ -8,7 +6,7 @@ function resolve(dir) {
 }
 module.exports = {
 	runtimeCompiler: true,
-	lintOnSave: true,
+	lintOnSave: false,
 	pages: {
 		index: {
 			entry: 'src/main.js',
@@ -38,7 +36,6 @@ module.exports = {
 					}
 				]
 			}),
-			new VuetifyLoaderPlugin()
 		]
 	},
 	devServer: {

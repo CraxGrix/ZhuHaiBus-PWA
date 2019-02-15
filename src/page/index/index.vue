@@ -12,7 +12,7 @@
   		<router-view name="searchModal" v-if="searchBarStatus" ></router-view>
   	</v-fade-transition>
       <v-container fulid grid-list-lg>
-      <router-view name="Card" v-for="(router, index) in routers" :key="index" :router="router"></router-view>
+      <router-view name="Card" v-for="(router, index) in routers" :key="index" :router="router[0]"></router-view>
         </v-container>
 </v-app>
 </template>
@@ -46,6 +46,6 @@ export default {
       },
       active: this.setFontLoaded,
     })
-  }
+  },
 }
 </script>

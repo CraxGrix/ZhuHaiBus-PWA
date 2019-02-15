@@ -1,8 +1,8 @@
 <template>
   <v-app color="#fff">
-    <keep-alive>
+  	<keep-alive>
           <router-view></router-view>
-    </keep-alive>
+      </keep-alive>
   </v-app>
 </template>
 <style>

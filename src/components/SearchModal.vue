@@ -65,7 +65,7 @@ export default {
       } else {
         this.addRouters(this.matchedRouters)
       }
-      this.viewConversion(id)
+      this.viewConversion({name: "details", params: this.matchedRouters.find(r => r["Id"] === id)})
     },
     sortRouters(id) {
       this.matchedRouters = this.matchedRouters[0]["Id"] === id ? this.matchedRouters : this.matchedRouters.reverse()

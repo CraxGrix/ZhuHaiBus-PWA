@@ -13,6 +13,7 @@ export default new VueRouter({
 	routes: [
 		{
 			path: '/',
+			name: 'index',
 			component: index,
 			children: [
 				{
@@ -27,10 +28,10 @@ export default new VueRouter({
 			prop: true
 		},
 		{
-			path: '/details/:LineNumber',
+			path: '/details/:Id',
 			name: 'details',
-			component: details
-			
+			component: details,
+			prop: true
 		}
 	]
 })

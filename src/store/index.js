@@ -39,10 +39,11 @@ export default new Vuex.Store({
 			let busQuantity = data.length
 			state.routers = state.routers.map(router => router.map(r => (r['Id'] === id ? ((r['stops'] = r['stops'].map(stop => ({...stop, busInfo: data.filter(s => s['name'] === stop['Name'])}))) && (r['busQuantity'] = busQuantity)) && r : r)))
 		},
-		reverseRouter(state, id) {
-			let index = state.routers.findIndex(el => el.some(e => e['Id'] === id))
-			if(index !== -1) state.routers[index].reverse()
-		},
+		 reverseRouter(state, id) {
+		 	let index = state.routers.findIndex(el => el.some(e => e['Id'] === id))
+		 	if(index !== -1) state.routers[index].reverse()
+		 		console.log(state.routers[index][0]["FromStation"])
+		 },
 		setRouters(state, routers) {
 			state.routers = routers
 		}
@@ -53,15 +54,14 @@ export default new Vuex.Store({
 				delayTrigger('commit', '_changeSearchBarStatus', context, resolve)
     		})
 		},
-		viewConversion({ state, commit }, id) {
+		viewConversion({ state, commit }, params) {
 			return new Promise((resolve, reject) => {
-				let params = state.routers.flat().find(r => r['Id'] === id)
-				delayTrigger('push', {name: 'details', params}, router, resolve)
-    		}).then(() => (commit('stickyRouters', id)))
+				delayTrigger('push', params, router, resolve)
+    		}).then(() => (commit('stickyRouters', params.Id)))
 		},
 		viewReturn() {
-			return new Promise((resolve, reject) => (delayTrigger('back',undefined,router, resolve)))
-		},
+			return new Promise((resolve, reject) => (delayTrigger('push','/',router, resolve)))
+		}
 	}
 	
 })

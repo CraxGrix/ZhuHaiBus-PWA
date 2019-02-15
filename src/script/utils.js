@@ -5,6 +5,5 @@ const FP = {
 }
 export const characterMatchRoute = str => DATA.filter(router => str === FP._('Name', router))
 export const getInfoById = id => DATA.find(info => info.Id === id)
-
-
-
+export const filterObj = (prop, val, arr) => R.filter(o => equals(o[prop], val))
+export const findIndex = (prop, val, list) => R.findIndex(R.propEq(prop, val))(list)
