@@ -5,7 +5,7 @@
         <v-btn icon>
           <v-icon>search</v-icon>
         </v-btn>
-        <v-text-field lable="Search" v-model="inputValue"  single-line autofocus></v-text-field>
+        <v-text-field lable="Search" v-model="inputValue" single-line autofocus></v-text-field>
         <v-btn icon @click="changeSearchBarState">
           <v-icon>close</v-icon>
         </v-btn>
@@ -13,21 +13,26 @@
       <v-divider></v-divider>
       <v-card v-if="inputValue" class="search_result_wrap">
         <v-list two-line>
-          <v-card ripple v-for="(router, index) in matchedRouters" :key="index" @click="createRouterCard(router.Id)">
-            <v-card-title> 
-            <v-layout>
-              <v-flex>
-                <div class="title">{{ router.Name }}</div>
-                <span class="body-2">{{ router.FromStation }}</span>
-                <v-icon small class="arrow_forward_icon">arrow_forward</v-icon>
-                <span class="body-2">{{ router.ToStation }}</span>
-              </v-flex>
-              <v-flex>
-                <div class=" caption">最早班次:{{ router.BeginTime }}</div>
-                <div class=" caption">最后班次:{{ router.EndTime }}</div>
-                <div class=" caption">班次间隔:{{ router.Interval }}min</div>
-              </v-flex>
-            </v-layout>           
+          <v-card
+            ripple
+            v-for="(router, index) in matchedRouters"
+            :key="index"
+            @click="createRouterCard(router.Id)"
+          >
+            <v-card-title>
+              <v-layout>
+                <v-flex>
+                  <div class="title">{{ router.Name }}</div>
+                  <span class="body-2">{{ router.FromStation }}</span>
+                  <v-icon small class="arrow_forward_icon">arrow_forward</v-icon>
+                  <span class="body-2">{{ router.ToStation }}</span>
+                </v-flex>
+                <v-flex>
+                  <div class="caption">最早班次:{{ router.BeginTime }}</div>
+                  <div class="caption">最后班次:{{ router.EndTime }}</div>
+                  <div class="caption">班次间隔:{{ router.Interval }}min</div>
+                </v-flex>
+              </v-layout>
             </v-card-title>
             <v-divider></v-divider>
           </v-card>
@@ -37,8 +42,8 @@
   </div>
 </template>
 <script>
-import { mapActions, mapGetters, mapState, mapMutations} from "vuex";
-import { characterMatchRoute } from '@/script/utils'
+import { mapActions, mapGetters, mapState, mapMutations } from "vuex";
+import { characterMatchRoute } from "@/script/utils";
 export default {
   data: () => {
     return {
@@ -47,34 +52,40 @@ export default {
     };
   },
   computed: {
-    ...mapState(["searchBarStatus", "routers"]),
+    ...mapState(["searchBarStatus", "routers"])
   },
   watch: {
     inputValue(val) {
-      this.matchedRouters = characterMatchRoute(`${val}路`)
+      this.matchedRouters = characterMatchRoute(`${val}路`);
     }
   },
   methods: {
     ...mapActions(["changeSearchBarState", "viewConversion"]),
     ...mapMutations(["addRouters", "stickyRouters"]),
     createRouterCard(id) {
-      this.changeSearchBarState()
-      this.sortRouters(id)
-      if(this.check(id)) {
-        this.stickyRouters(id)
+      this.changeSearchBarState();
+      this.sortRouters(id);
+      if (this.check(id)) {
+        this.stickyRouters(id);
       } else {
-        this.addRouters(this.matchedRouters)
+        this.addRouters(this.matchedRouters);
       }
-      this.viewConversion({name: "details", params: this.matchedRouters.find(r => r["Id"] === id)})
+      this.viewConversion({
+        name: "details",
+        params: this.matchedRouters.find(r => r["Id"] === id)
+      });
     },
     sortRouters(id) {
-      this.matchedRouters = this.matchedRouters[0]["Id"] === id ? this.matchedRouters : this.matchedRouters.reverse()
+      this.matchedRouters =
+        this.matchedRouters[0]["Id"] === id
+          ? this.matchedRouters
+          : this.matchedRouters.reverse();
     },
     check(id) {
-      return this.routers.flat().some(info => info["Id"] === id)
+      return this.routers.flat().some(info => info["Id"] === id);
     }
-}
-}
+  }
+};
 </script>
 <style>
 .modal-backdrop {
