@@ -21,14 +21,16 @@ module.exports = {
 			swSrc: 'public/service-worker.js'
 		}
 	},
-	configureWebpack: {
+	configureWebpack: { 
 		plugins: [
 			new WebpackPwaManifest({
 				name: 'ZhuHaiBus PWA',
 				short_name: 'ZhuHaiBus PWA',
+				start_url: "./index.html",
+  				display: "standalone",
+  				theme_color: "#4DBA87",
 				description: 'ZhuHaiBus Progressive Web App!',
 				background_color: '#ffffff',
-				crossorigin: 'use-credentials', // can be null, use-credentials or anonymous
 				icons: [
 					{
 						src: resolve('src/assets/logo.png'),

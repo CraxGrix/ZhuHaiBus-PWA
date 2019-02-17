@@ -1,6 +1,7 @@
 if (workbox) {
 	workbox.setConfig({
-		debug: true
+		debug: false,
+		modulePathPrefix: "https://g.alicdn.com/kg/workbox/3.6.3/"
 	})
 	console.log('Workbox is loaded')
 
@@ -15,6 +16,10 @@ if (workbox) {
 	workbox.clientsClaim()
 
 	workbox.precaching.precacheAndRoute(self.__precacheManifest)
+	workbox.routing.registerRoute(
+  new RegExp('.*\.(?:js|css)'),
+  workbox.strategies.cacheFirst()
+);
 
 	workbox.routing.registerRoute(
 		/^https:\/\/fonts\.googleapis\.com/,

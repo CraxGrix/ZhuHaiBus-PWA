@@ -1,8 +1,10 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import router from "@/router/index";
-import characterMatchRoute from "@/script/utils";
+import { characterMatchRoute, queryAnotherRoute } from "@/script/utils";
+import http from "@/script/request"
 Vue.use(Vuex);
+const REQUEST_OFFEST = 2;
 function delayTrigger(handle, args, target, complete) {
   setTimeout(() => {
     target[handle](args);
@@ -13,12 +15,14 @@ export default new Vuex.Store({
   state: {
     searchBarStatus: false,
     screenHeight: null,
-    routers: []
+    globalRouters: [],
+    requestTaskPool: []
   },
   getters: {
     calculatePageOffset: state => {
       return Math.floor((state.screenHeight / 65.5) * 0.5) * 65.5;
-    }
+    },
+    offsetRecentlyViewedRoute: state => state.globalRouters.slice(0, REQUEST_OFFEST)
   },
   mutations: {
     _changeSearchBarStatus(state) {
@@ -27,38 +31,28 @@ export default new Vuex.Store({
     setScreenHeight(state, height) {
       state.screenHeight = height;
     },
-    addRouters(state, payloadArray) {
-      state.routers.unshift(payloadArray);
+    addRouters(state, routerInfo) {
+      state.globalRouters.unshift(routerInfo);
     },
-    stickyRouters(state, id) {
-      state.routers.sort(router =>
-        router.every(r => r["Id"] !== id) ? 0 : -1
-      );
+    stickyRouter(state, { Id }) {
+      state.globalRouters.sort(routerInfo => (routerInfo.Id === Id ? -1 : 0))
     },
-    updateRealTimeData(state, params) {
-      let id = params.id;
-      let data = params.data;
-      let busQuantity = data.length;
-      state.routers = state.routers.map(router =>
-        router.map(r =>
-          r["Id"] === id
-            ? (r["stops"] = r["stops"].map(stop => ({
-                ...stop,
-                busInfo: data.filter(s => s["name"] === stop["Name"])
-              }))) &&
-              (r["busQuantity"] = busQuantity) &&
-              r
-            : r
-        )
-      );
+    reverseRouter(state, { Id }) {
+      let index = state.globalRouters.findIndex(route => route.Id === Id)
+      let anotherRouter = queryAnotherRoute(state.globalRouters[index])
+      if(anotherRouter.length) state.globalRouters.splice(index, 1, anotherRouter[0]);   
     },
-    reverseRouter(state, id) {
-      let index = state.routers.findIndex(el => el.some(e => e["Id"] === id));
-      if (index !== -1) state.routers[index].reverse();
+    setGlobalRouters(state, routers) {
+      state.globalRouters = routers;
     },
-    setRouters(state, routers) {
-      state.routers = routers;
+    mergaRealtimeToRouterInfo(state, { id, realtimeData}) {
+      let result = state.globalRouters.find(routerInfo => routerInfo.Id === id)
+      result['busInfo'] = realtimeData
+    },
+    changeTaskStatus(state, statusObj) {
+      state.requestTaskPool = state.requestTaskPool.map(task => (task.id === statusObj.id ? statusObj : task) )
     }
+
   },
   actions: {
     changeSearchBarState(context) {
@@ -66,15 +60,33 @@ export default new Vuex.Store({
         delayTrigger("commit", "_changeSearchBarStatus", context, resolve);
       });
     },
-    viewConversion({ state, commit }, params) {
+    viewConversion({ state, commit }, opts) {
       return new Promise((resolve, reject) => {
-        delayTrigger("push", params, router, resolve);
-      }).then(() => commit("stickyRouters", params.Id));
+        let handle = opts.handle
+        let params = opts.params
+        delayTrigger(handle, params, router, resolve);
+      }).then(() => commit("stickyRouter", opts.params));
     },
-    viewReturn() {
+    viewReturn({}, numberOfEntries) {
       return new Promise((resolve, reject) =>
-        delayTrigger("push", "/", router, resolve)
+        delayTrigger("back", "", router, resolve)
       );
+    },
+    requestRealTimeData({}, opts) {
+      return http.requestRealTimeData(opts)
+    },
+    updateRealTimeData({ dispatch }, opts) {
+      return dispatch("requestRealTimeData", opts)
+              .then(result => (commit("mergaRealtimeToRouterInfo", {
+                  id: routerInfo.Id,
+                  realtimeData: result.data})))
+              .catch(error => (dispatch.requestRealTimeData(routerInfo)))
+    },
+    // 用户的乘车选择大部分情况下不止一辆，所以根据用户的浏览记录前三个车辆进行请求。
+    updateRealtimeDataByOffectRecentlyViewedRouter({ dispatch, commit, getters }) {
+      getters.offsetRecentlyViewedRoute.forEach(routerInfo => {
+        dispatch("updateRealTimeData", routerInfo)
+      })
     }
   }
 });

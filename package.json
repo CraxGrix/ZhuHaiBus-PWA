@@ -20,7 +20,7 @@
     "material-design-icons": "^3.0.1",
     "material-design-icons-iconfont": "^4.0.3",
     "ramda": "^0.26.1",
-    "register-service-worker": "^1.5.2",
+    "register-service-worker": "^1.6.1",
     "requirejs": "^2.3.6",
     "trie-prefix-tree": "^1.5.0",
     "vue": "^2.5.21",

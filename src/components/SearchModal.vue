@@ -17,7 +17,7 @@
             ripple
             v-for="(router, index) in matchedRouters"
             :key="index"
-            @click="createRouterCard(router.Id)"
+            @click="clickEventProcess(router)"
           >
             <v-card-title>
               <v-layout>
@@ -52,7 +52,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["searchBarStatus", "routers"])
+    ...mapState(["searchBarStatus", "globalRouters"])
   },
   watch: {
     inputValue(val) {
@@ -61,28 +61,22 @@ export default {
   },
   methods: {
     ...mapActions(["changeSearchBarState", "viewConversion"]),
-    ...mapMutations(["addRouters", "stickyRouters"]),
-    createRouterCard(id) {
+    ...mapMutations(["addRouters", "stickyRouter", "checkDuplicateRoute"]),
+    clickEventProcess(routerInfo) {
       this.changeSearchBarState();
-      this.sortRouters(id);
-      if (this.check(id)) {
-        this.stickyRouters(id);
+      if (this.checkDuplicateRoute(routerInfo.Id)) {
+        this.stickyRouter(routerInfo);
       } else {
-        this.addRouters(this.matchedRouters);
+        this.addRouters(routerInfo);
       }
-      this.viewConversion({
-        name: "details",
-        params: this.matchedRouters.find(r => r["Id"] === id)
-      });
+      let opts = {
+        handle: "push",
+        params: { name: "details", params: routerInfo }
+      }
+      this.viewConversion(opts);
     },
-    sortRouters(id) {
-      this.matchedRouters =
-        this.matchedRouters[0]["Id"] === id
-          ? this.matchedRouters
-          : this.matchedRouters.reverse();
-    },
-    check(id) {
-      return this.routers.flat().some(info => info["Id"] === id);
+    checkDuplicateRoute(id) {
+      return this.globalRouters.some(route => route.Id === id)
     }
   }
 };
@@ -125,4 +119,3 @@ export default {
 .router_time_info_container {
 }
 </style>
-

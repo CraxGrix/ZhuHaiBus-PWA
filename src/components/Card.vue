@@ -1,5 +1,5 @@
 <template>
-  <v-flex xs12 class="card" @click="showDetails(router)">
+  <v-flex xs12 class="card" @click="clickEventProcess(router)">
     <v-card>
       <v-layout align-center justify-center fill-height>
         <v-flex xs9>
@@ -7,13 +7,13 @@
             <div>
               <div class="title">{{ router.Name }}</div>
               <span class="body-2">{{ router.FromStation }}</span>
-              <span class="body-1">驶往</span>
+              <span class="body-1">  驶往  </span>
               <span class="body-2">{{ router.ToStation }}</span>
             </div>
           </v-card-title>
         </v-flex>
         <v-flex xs3>
-          <v-btn icon @click.stop="reverseRouter(router['Id'])">
+          <v-btn icon @click.stop="reverseRouter(router)">
             <v-icon>swap_horiz</v-icon>
           </v-btn>
         </v-flex>
@@ -27,13 +27,17 @@ export default {
   props: ["router"],
   data: () => ({}),
   computed: {
-    ...mapState(["routers"])
+    ...mapState(["globalRouters"])
   },
   methods: {
     ...mapActions(["viewConversion"]),
-    ...mapMutations(["reverseRouter"]),
-    showDetails(params) {
-      this.viewConversion({ name: "details", params: params });
+    ...mapMutations(["reverseRouter", "stickyRouter"]),
+    clickEventProcess(routerInfo) {
+      let opts = {
+        handle: "push",
+        params: { name: "details", params: routerInfo }
+      }
+      this.viewConversion(opts);
     }
   }
 };

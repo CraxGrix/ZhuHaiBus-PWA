@@ -1,15 +1,14 @@
 <template>
-  <v-fade-transition>
-    <v-app>
+    <v-app v-if="viewRouterInfo != null">
       <v-toolbar fixed>
         <v-toolbar-side-icon @click="viewReturn">
           <v-icon>arrow_back</v-icon>
         </v-toolbar-side-icon>
         <div>
-          <div class="body-2">{{ $route.params.Name }}({{ busList.length }}辆车正在行驶)</div>
-          <span class="body-1">{{ $route.params.FromStation }}</span>
+          <div class="body-2">{{ viewRouterInfo.Name }}({{ busList.length }}辆车正在行驶)</div>
+          <span class="body-1">{{ viewRouterInfo.FromStation }}</span>
           <v-icon small class="arrow_forward_icon">arrow_forward</v-icon>
-          <span class="body-1">{{ $route.params.ToStation }}</span>
+          <span class="body-1">{{ viewRouterInfo.ToStation }}</span>
         </div>
         <v-spacer></v-spacer>
         <v-btn icon :loading="loading">
@@ -22,7 +21,7 @@
         </v-btn>
       </v-toolbar>
       <v-timeline align-top dense class="timeline_wrap">
-        <v-timeline-item fill-dot small v-for="(stop, index) in $route.params.stops" :key="index">
+        <v-timeline-item fill-dot small v-for="(stop, index) in viewRouterInfo.stops" :key="index">
           <v-layout pt-3>
             <v-flex xs3>
               <v-fade-transition>
@@ -54,28 +53,30 @@
         </v-timeline-item>
       </v-timeline>
       <v-snackbar color="error" :timeout="timeout" v-model="error_snackbar">
-        {{ errorMsg }}
+        "Timeout Retry"
         <v-btn dark flat @click="error_snackbar = false">Close</v-btn>
       </v-snackbar>
     </v-app>
-  </v-fade-transition>
 </template>
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from "vuex";
 import { requestRealTimeData } from "@/script/request";
-import { filterObj } from "@/script/utils";
+import { filterObj, queryAnotherRoute } from "@/script/utils";
 export default {
   data: () => ({
     error_snackbar: false,
     timeout: 3000,
     loading: false,
     requestIcon: "none",
-    errorMsg: "",
+    errorMsg: "Timeout Retry",
     intervalId: "",
     busList: []
   }),
   computed: {
-    ...mapState(["routers"])
+    ...mapState(["globalRouters"]),
+    viewRouterInfo() {
+      return this.globalRouters.find(router => router.Id === this.$route.params.Id)
+    }
   },
   watch: {
     loading(val) {
@@ -87,19 +88,10 @@ export default {
   },
   methods: {
     ...mapActions(["viewReturn", "viewConversion"]),
-    ...mapMutations(["updateRealTimeData", "reverseRouter"]),
+    ...mapMutations([ "reverseRouter"]),
     showError(e) {
       this.errorMsg = e;
       this.error_snackbar = true;
-    },
-    update(params) {
-      this.loading = true;
-      requestRealTimeData(params)
-        .then(result => {
-          this.loading = false;
-          this.busList = result.data;
-        })
-        .catch(e => this.showError(e.status));
     },
     iconShowJudge(name, genre) {
       let result = this.busList.find(info => info["name"] === name);
@@ -108,54 +100,25 @@ export default {
       }
       return false;
     },
-    getBusQuantify(name, logic) {
-      let result = filterObj(
-        "busState",
-        logic,
-        filterObj("name", name, this.busList)
-      );
-      return result.length;
-    },
     reverse() {
-      this.reverseRouter(this.$route.params.Id);
-      this.viewConversion({
+      let params = this.$route.params
+      let anotherRouter = queryAnotherRoute(params)
+      if (anotherRouter.length) {
+        this.reverseRouter(params)
+        let opts = {
+          handle: "replace",
+          params: {
         name: "details",
-        params: this.routers
-          .flat()
-          .find(
-            r =>
-              r["Name"] === this.$route.params["Name"] &&
-              r["Id"] !== this.$route.params["Id"]
-          )
-      });
+        params: anotherRouter[0]
+      }
+        }
+        this.viewConversion(opts)
+      }
     },
-    clear() {
-      clearInterval(this.intervalId);
-    },
-    startInterval() {
-      this.intervalId = setInterval(
-        self => {
-          if (self.$route.params.hasOwnProperty("Id"))
-            self.update(self.$route.params);
-        },
-        4000,
-        this
-      );
-    }
   },
   mounted() {
-    this.update(this.$route.params);
-    if (!this.intervalId) this.startInterval();
+
   },
-  beforeRouteUpdate(to, from, next) {
-    this.busList = [];
-    this.update(to.params);
-    next();
-  },
-  beforeRouteLeave(to, from, next) {
-    this.busList = [];
-    next();
-  }
 };
 </script>
 <style scoped>
