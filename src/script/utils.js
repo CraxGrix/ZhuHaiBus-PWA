@@ -13,3 +13,5 @@ export const filterObj = (prop, val, arr) =>
 export const findIndex = (prop, val, list) =>
   R.findIndex(R.propEq(prop, val))(list);
 export const queryAnotherRoute = ({LineNumber, FromStation}) =>  FP.filterDifferent("FromStation", FromStation, FP.filterSame("LineNumber", LineNumber, DATA))
+export const isNullObject = o => Object.keys(o).length === 0
+export const isNullArray = array => array.length === 0 ? true : false

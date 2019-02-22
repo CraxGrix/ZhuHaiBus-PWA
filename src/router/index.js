@@ -31,7 +31,12 @@ export default new VueRouter({
       path: "/details/:Id",
       name: "details",
       component: details,
-      prop: true
+      prop: true,
+      beforeEnter: (to, from, next) => {
+        // ...
+        //console.log(to, from)
+        next()
+      }
     }
   ]
 });

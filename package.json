@@ -17,6 +17,7 @@
     "geolib": "^2.0.24",
     "haversine-distance": "^1.1.4",
     "latlon-geohash": "^1.1.0",
+    "lodash": "^4.17.11",
     "material-design-icons": "^3.0.1",
     "material-design-icons-iconfont": "^4.0.3",
     "ramda": "^0.26.1",

@@ -8,7 +8,6 @@ import router from "./router/index";
 import { register } from "register-service-worker";
 const dataLayer = window.dataLayer || [];
 Vue.use(Vuetify);
-Vue.config.productionTip = false;
 new Vue({
   el: "#app",
   store,
